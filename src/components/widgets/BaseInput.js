@@ -20,6 +20,7 @@ function renderBase({ input, customProps }) {
   const value = input.value;
   inputProps.type = options.inputType || inputProps.type || "text";
   const _onChange = ({ target: { value } }) => {
+    customProps.onChange(value === "" ? options.emptyValue : value);
     return input.onChange(value === "" ? options.emptyValue || "" : value);
   };
   return (

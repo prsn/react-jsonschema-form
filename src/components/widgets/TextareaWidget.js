@@ -11,11 +11,13 @@ function renderTextareaWidget({ input, customProps }) {
     disabled,
     readonly,
     autofocus,
+    onChange,
     onBlur,
     onFocus,
   } = customProps;
   const value = input.value;
   const _onChange = ({ target: { value } }) => {
+    onChange(value === "" ? options.emptyValue : value);
     return input.onChange(value === "" ? options.emptyValue || "" : value);
   };
   return (

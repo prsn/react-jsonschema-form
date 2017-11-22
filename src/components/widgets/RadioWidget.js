@@ -3,7 +3,14 @@ import PropTypes from "prop-types";
 import { Field } from "redux-form";
 
 function renderRadioWidgets({ input, customProps }) {
-  const { options, required, disabled, readonly, autofocus } = customProps;
+  const {
+    options,
+    required,
+    disabled,
+    readonly,
+    autofocus,
+    onChange,
+  } = customProps;
   // Generating a unique field name to identify this set of radio buttons
   const name = Math.random().toString();
   const { enumOptions, inline } = options;
@@ -24,7 +31,10 @@ function renderRadioWidgets({ input, customProps }) {
               value={option.value}
               disabled={disabled || readonly}
               autoFocus={autofocus && i === 0}
-              onChange={_ => input.onChange(option.value)}
+              onChange={_ => {
+                onChange(option.value);
+                input.onChange(option.value);
+              }}
             />
             <span>{option.label}</span>
           </span>

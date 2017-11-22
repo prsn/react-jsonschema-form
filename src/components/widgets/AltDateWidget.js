@@ -20,6 +20,7 @@ function renderDateElement({ input, customProps }) {
   const {
     type,
     range,
+    select,
     disabled,
     readonly,
     autofocus,
@@ -39,7 +40,10 @@ function renderDateElement({ input, customProps }) {
       disabled={disabled}
       readonly={readonly}
       autofocus={autofocus}
-      onChange={input.onChange}
+      onChange={value => {
+        select(type, value);
+        input.onChange(value);
+      }}
       onBlur={onBlur}
     />
   );
