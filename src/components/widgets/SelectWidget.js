@@ -45,6 +45,7 @@ function renderSelect({ input, customProps }) {
     readonly,
     multiple,
     autofocus,
+    onChange,
     onBlur,
     onFocus,
     placeholder,
@@ -76,6 +77,7 @@ function renderSelect({ input, customProps }) {
       }
       onChange={event => {
         const newValue = getValue(event, multiple);
+        onChange(processValue(schema, newValue));
         input.onChange(processValue(schema, newValue));
       }}>
       {!multiple && !schema.default && <option value="">{placeholder}</option>}
