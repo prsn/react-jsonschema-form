@@ -340,7 +340,7 @@ class ArrayField extends Component {
       items: formData.map((item, index) => {
         const itemSchema = retrieveSchema(schema.items, definitions, item);
         const itemErrorSchema = errorSchema ? errorSchema[index] : undefined;
-        const itemIdPrefix = idSchema.$id + "_" + index;
+        const itemIdPrefix = index + "";
         const itemIdSchema = toIdSchema(
           itemSchema,
           itemIdPrefix,
@@ -503,7 +503,7 @@ class ArrayField extends Component {
         const itemSchema = additional
           ? retrieveSchema(schema.additionalItems, definitions, item)
           : itemSchemas[index];
-        const itemIdPrefix = idSchema.$id + "_" + index;
+        const itemIdPrefix = index + "";
         const itemIdSchema = toIdSchema(
           itemSchema,
           itemIdPrefix,

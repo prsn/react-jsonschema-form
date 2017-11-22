@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-
+import { Field } from "redux-form";
 import { asNumber } from "../../utils";
 
 /**
@@ -35,22 +35,20 @@ function getValue(event, multiple) {
   }
 }
 
-function SelectWidget(props) {
+function renderSelect({ input, customProps }) {
   const {
     schema,
     id,
     options,
-    value,
     required,
     disabled,
     readonly,
     multiple,
     autofocus,
-    onChange,
     onBlur,
     onFocus,
     placeholder,
-  } = props;
+  } = customProps;
   const { enumOptions, enumDisabled } = options;
   const emptyValue = multiple ? [] : "";
   return (
@@ -58,7 +56,7 @@ function SelectWidget(props) {
       id={id}
       multiple={multiple}
       className="form-control"
-      value={typeof value === "undefined" ? emptyValue : value}
+      value={typeof input.value === "undefined" ? emptyValue : input.value}
       required={required}
       disabled={disabled || readonly}
       autoFocus={autofocus}
@@ -78,7 +76,7 @@ function SelectWidget(props) {
       }
       onChange={event => {
         const newValue = getValue(event, multiple);
-        onChange(processValue(schema, newValue));
+        input.onChange(processValue(schema, newValue));
       }}>
       {!multiple && !schema.default && <option value="">{placeholder}</option>}
       {enumOptions.map(({ value, label }, i) => {
@@ -90,6 +88,14 @@ function SelectWidget(props) {
         );
       })}
     </select>
+  );
+}
+
+function SelectWidget(props) {
+  return (
+    <div>
+      <Field name={props.id} component={renderSelect} customProps={props} />
+    </div>
   );
 }
 

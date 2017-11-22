@@ -3,9 +3,17 @@ import { render } from "react-dom";
 import CodeMirror from "react-codemirror2";
 import "codemirror/mode/javascript/javascript";
 
+import { createStore, combineReducers } from "redux";
+import {
+  reducer as formReducer,
+  reduxForm,
+  formValueSelector,
+} from "redux-form";
+
 import { shouldRender } from "../src/utils";
 import { samples } from "./samples";
 import Form from "../src";
+import { Provider, connect } from "react-redux";
 
 // Import a few CodeMirror themes; these are used to match alternative
 // bootstrap ones.
@@ -124,6 +132,31 @@ const themes = {
     editor: "eclipse",
   },
 };
+
+const rootReducer = combineReducers({
+  form: formReducer,
+});
+
+const store = createStore(rootReducer);
+
+if (module.hot) {
+  // Enable Webpack hot module replacement for reducers
+  module.hot.accept("redux-form", () => {
+    const nextRootReducer = require("redux-form");
+    store.replaceReducer(nextRootReducer);
+  });
+}
+
+var ReduxForm = reduxForm({
+  form: "sampleForm",
+  initialValues: samples.Simple.formData,
+  // validate(values) {
+  //   console.log(values);
+  //   var errors = {};
+  //   errors['firstName'] = 'Required';
+  //   return errors;
+  // }
+})(Form);
 
 class GeoPosition extends Component {
   constructor(props) {
@@ -264,12 +297,12 @@ function ThemeSelector({ theme, select }) {
     enum: Object.keys(themes),
   };
   return (
-    <Form
+    <ReduxForm
       schema={themeSchema}
       formData={theme}
       onChange={({ formData }) => select(formData, themes[formData])}>
       <div />
-    </Form>
+    </ReduxForm>
   );
 }
 
@@ -364,18 +397,18 @@ class App extends Component {
 
   onFormDataEdited = formData => this.setState({ formData, shareURL: null });
 
-  onThemeSelected = (theme, { stylesheet, editor }) => {
-    this.setState({ theme, editor: editor ? editor : "default" });
-    setImmediate(() => {
-      // Side effect!
-      document.getElementById("theme").setAttribute("href", stylesheet);
-    });
+  onThemeSelected = () => {
+    // this.setState({ theme, editor: editor ? editor : "default" });
+    // setImmediate(() => {
+    //   // Side effect!
+    //   document.getElementById("theme").setAttribute("href", stylesheet);
+    // });
   };
 
   setLiveValidate = ({ formData }) => this.setState({ liveValidate: formData });
 
-  onFormDataChange = ({ formData }) =>
-    this.setState({ formData, shareURL: null });
+  onFormDataChange = ({ formData }) => console.log(formData);
+  //this.setState({ formData, shareURL: null });
 
   onShare = () => {
     const { formData, schema, uiSchema } = this.state;
@@ -411,12 +444,12 @@ class App extends Component {
               <Selector onSelected={this.load} />
             </div>
             <div className="col-sm-2">
-              <Form
+              <ReduxForm
                 schema={liveValidateSchema}
                 formData={liveValidate}
                 onChange={this.setLiveValidate}>
                 <div />
-              </Form>
+              </ReduxForm>
             </div>
             <div className="col-sm-2">
               <ThemeSelector theme={theme} select={this.onThemeSelected} />
@@ -451,24 +484,27 @@ class App extends Component {
         </div>
         <div className="col-sm-5">
           {this.state.form && (
-            <Form
+            <ReduxForm
               ArrayFieldTemplate={ArrayFieldTemplate}
               ObjectFieldTemplate={ObjectFieldTemplate}
               liveValidate={liveValidate}
               schema={schema}
               uiSchema={uiSchema}
               formData={formData}
-              onChange={this.onFormDataChange}
-              onSubmit={({ formData }) =>
-                console.log("submitted formData", formData)
-              }
+              //onChange={this.onFormDataChange}
+              onSubmit={formData => {
+                //console.log("submitted formData", formData, store.getState());
+                console.log("form", this.props.formValues);
+              }}
               fields={{ geo: GeoPosition }}
               validate={validate}
-              onBlur={(id, value) =>
-                console.log(`Touched ${id} with value ${value}`)
+              onBlur={
+                (id, value) => undefined
+                //console.log(`Touched ${id} with value ${value}`)
               }
-              onFocus={(id, value) =>
-                console.log(`Focused ${id} with value ${value}`)
+              onFocus={
+                (id, value) => undefined
+                //console.log(`Focused ${id} with value ${value}`)
               }
               transformErrors={transformErrors}
               onError={log("errors")}>
@@ -485,12 +521,51 @@ class App extends Component {
                   />
                 </div>
               </div>
-            </Form>
+            </ReduxForm>
           )}
         </div>
       </div>
     );
   }
 }
+const selector = formValueSelector("sampleForm");
+var CApp = connect(state => {
+  var formValues = {};
+  if (state.form && state.form.sampleForm && state.form.sampleForm.values) {
+    Object.keys(state.form.sampleForm.values).forEach(obj => {
+      formValues[obj] = selector(state, obj);
+      return obj;
+    });
+  }
 
-render(<App />, document.getElementById("app"));
+  // Example: retrieve deep objects
+  var deep = {};
+  //console.log('keys', Object.keys(samples.References.formData));
+  Object.keys(samples.References.formData).forEach(o => {
+    //console.log(typeof samples.References.formData[o], o);
+    if (typeof samples.References.formData[o] === "object") {
+      //candidate for deep diving...
+      //console.log('deep diving...');
+      var subObj = {};
+      Object.keys(samples.References.formData[o]).forEach(sub => {
+        subObj[sub] = selector(state, o + "." + sub);
+      });
+      deep[o] = subObj;
+    } else {
+      deep[o] = selector(state, o);
+    }
+  });
+
+  //console.log('deep', deep);
+
+  //const formValue = selector(state, 'gender');
+  return {
+    formValues,
+  };
+})(App);
+render(
+  <Provider store={store}>
+    <CApp />
+  </Provider>,
+  document.getElementById("app")
+);

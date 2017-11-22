@@ -627,7 +627,7 @@ export function toIdSchema(schema, id, definitions, formData = {}) {
   }
   for (const name in schema.properties || {}) {
     const field = schema.properties[name];
-    const fieldId = idSchema.$id + "_" + name;
+    const fieldId = name;
     idSchema[name] = toIdSchema(field, fieldId, definitions, formData[name]);
   }
   return idSchema;

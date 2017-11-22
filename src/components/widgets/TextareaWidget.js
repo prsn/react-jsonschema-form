@@ -1,22 +1,22 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Field } from "redux-form";
 
-function TextareaWidget(props) {
+function renderTextareaWidget({ input, customProps }) {
   const {
     id,
     options,
     placeholder,
-    value,
     required,
     disabled,
     readonly,
     autofocus,
-    onChange,
     onBlur,
     onFocus,
-  } = props;
+  } = customProps;
+  const value = input.value;
   const _onChange = ({ target: { value } }) => {
-    return onChange(value === "" ? options.emptyValue : value);
+    return input.onChange(value === "" ? options.emptyValue || "" : value);
   };
   return (
     <textarea
@@ -33,6 +33,18 @@ function TextareaWidget(props) {
       onFocus={onFocus && (event => onFocus(id, event.target.value))}
       onChange={_onChange}
     />
+  );
+}
+
+function TextareaWidget(props) {
+  return (
+    <div>
+      <Field
+        name={props.id}
+        component={renderTextareaWidget}
+        customProps={props}
+      />
+    </div>
   );
 }
 

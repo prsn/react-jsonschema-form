@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Field } from "redux-form";
 
-function BaseInput(props) {
+function renderBase({ input, customProps }) {
   // Note: since React 15.2.0 we can't forward unknown element attributes, so we
   // exclude the "options" and "schema" ones here.
   const {
-    value,
     readonly,
     disabled,
     autofocus,
@@ -16,11 +16,11 @@ function BaseInput(props) {
     formContext,
     registry,
     ...inputProps
-  } = props;
-
+  } = customProps;
+  const value = input.value;
   inputProps.type = options.inputType || inputProps.type || "text";
   const _onChange = ({ target: { value } }) => {
-    return props.onChange(value === "" ? options.emptyValue : value);
+    return input.onChange(value === "" ? options.emptyValue || "" : value);
   };
   return (
     <input
@@ -28,12 +28,19 @@ function BaseInput(props) {
       readOnly={readonly}
       disabled={disabled}
       autoFocus={autofocus}
-      value={value == null ? "" : value}
       {...inputProps}
+      value={value}
       onChange={_onChange}
       onBlur={onBlur && (event => onBlur(inputProps.id, event.target.value))}
       onFocus={onFocus && (event => onFocus(inputProps.id, event.target.value))}
     />
+  );
+}
+function BaseInput(props) {
+  return (
+    <div>
+      <Field name={props.id} component={renderBase} customProps={props} />
+    </div>
   );
 }
 

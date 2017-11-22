@@ -31,6 +31,12 @@ module.exports = {
         title: "Telephone",
         minLength: 10,
       },
+      gender: {
+        type: "string",
+        title: "Gender",
+        enum: ["male", "female"],
+        enumNames: ["Male", "Female"],
+      },
     },
   },
   uiSchema: {

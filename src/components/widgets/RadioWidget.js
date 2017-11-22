@@ -1,16 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Field } from "redux-form";
 
-function RadioWidget(props) {
-  const {
-    options,
-    value,
-    required,
-    disabled,
-    readonly,
-    autofocus,
-    onChange,
-  } = props;
+function renderRadioWidgets({ input, customProps }) {
+  const { options, required, disabled, readonly, autofocus } = customProps;
   // Generating a unique field name to identify this set of radio buttons
   const name = Math.random().toString();
   const { enumOptions, inline } = options;
@@ -19,7 +12,7 @@ function RadioWidget(props) {
   return (
     <div className="field-radio-group">
       {enumOptions.map((option, i) => {
-        const checked = option.value === value;
+        const checked = option.value === input.value;
         const disabledCls = disabled || readonly ? "disabled" : "";
         const radio = (
           <span>
@@ -31,7 +24,7 @@ function RadioWidget(props) {
               value={option.value}
               disabled={disabled || readonly}
               autoFocus={autofocus && i === 0}
-              onChange={_ => onChange(option.value)}
+              onChange={_ => input.onChange(option.value)}
             />
             <span>{option.label}</span>
           </span>
@@ -47,6 +40,17 @@ function RadioWidget(props) {
           </div>
         );
       })}
+    </div>
+  );
+}
+function RadioWidget(props) {
+  return (
+    <div>
+      <Field
+        name={props.id}
+        component={renderRadioWidgets}
+        customProps={props}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { Field } from "redux-form";
 
 import { shouldRender, parseDateString, toDateString, pad } from "../../utils";
 
@@ -15,20 +16,17 @@ function readyForChange(state) {
   return Object.keys(state).every(key => state[key] !== -1);
 }
 
-function DateElement(props) {
+function renderDateElement({ input, customProps }) {
   const {
     type,
     range,
-    value,
-    select,
-    rootId,
     disabled,
     readonly,
     autofocus,
     registry,
     onBlur,
-  } = props;
-  const id = rootId + "_" + type;
+  } = customProps;
+  const id = type + "";
   const { SelectWidget } = registry.widgets;
   return (
     <SelectWidget
@@ -37,13 +35,25 @@ function DateElement(props) {
       className="form-control"
       options={{ enumOptions: rangeOptions(range[0], range[1]) }}
       placeholder={type}
-      value={value}
+      value={input.value}
       disabled={disabled}
       readonly={readonly}
       autofocus={autofocus}
-      onChange={value => select(type, value)}
+      onChange={input.onChange}
       onBlur={onBlur}
     />
+  );
+}
+
+function DateElement(props) {
+  return (
+    <div>
+      <Field
+        name={props.id || Math.random().toString()} //TODO: need to think about better name...
+        component={renderDateElement}
+        customProps={props}
+      />
+    </div>
   );
 }
 
