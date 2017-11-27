@@ -67,11 +67,11 @@ export default class Form extends Component {
   }
 
   validate(formData, schema) {
-    const { validate, transformErrors } = this.props;
+    const { validateData, transformErrors } = this.props;
     return validateFormData(
       formData,
       schema || this.props.schema,
-      validate,
+      validateData,
       transformErrors
     );
   }
@@ -104,7 +104,8 @@ export default class Form extends Component {
     }
     setState(this, state, () => {
       if (this.props.onChange) {
-        this.props.onChange(this.state);
+        //console.log('on change state', state, this);
+        this.props.onChange(state);
       }
     });
   };
